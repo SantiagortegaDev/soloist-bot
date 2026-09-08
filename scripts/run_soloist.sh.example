@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Example: launching Spotify Soloist for this bot.
+# Copy to run_soloist.sh, fill in your own values, and DO NOT commit it
+# (it's already covered by .gitignore's secret-file patterns — double check).
+set -euo pipefail
+
+# Get this from the Spotify Developer Dashboard -> "Spotify Soloist API key"
+# section. Requires a Premium account. Never share or commit this key.
+export SOLOIST_API_KEY="paste-your-key-here"
+
+soloist \
+  --device-name "Discord Bot" \
+  --api-key "${SOLOIST_API_KEY}" \
+  --audio-device "soloist_out" \
+  --ws 127.0.0.1:5710
+
+# First run: open Spotify on any device on the same network, pick "Discord
+# Bot" from the Connect device picker to pair. Soloist stores the session
+# for subsequent restarts (no need to re-pair every time).
+#
+# To re-pair (e.g. switch accounts), re-run with --pair added.
