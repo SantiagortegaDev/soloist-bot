@@ -15,18 +15,35 @@ audio into the voice channel).
 
 ## Quick start
 
-1. Set up authentication — Discord token, Spotify Web API app, Soloist API
-   key + Premium pairing: [docs/AUTH.md](docs/AUTH.md).
-2. Deploy — same machine, or bot on a remote server with Soloist at home
-   over an SSH tunnel: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-3. Install and run:
+```bash
+git clone https://github.com/SantiagortegaDev/soloist-bot.git
+cd soloist-bot
+./install.sh          # checks dependencies, creates .venv, walks you through .env
+source .venv/bin/activate
+python3 main.py
+```
 
-   ```bash
-   python -m venv .venv && source .venv/bin/activate
-   pip install -e .
-   cp .env.example .env   # fill in your credentials
-   python -m bot.main
-   ```
+`install.sh` checks for python3.11+/ffmpeg/PulseAudio, installs the Python
+dependencies into `.venv`, and interactively writes `.env` with your Discord
+token and Spotify credentials (leave a field blank to fill it in later by
+hand). It's safe to re-run at any time.
+
+You'll still need to get those credentials first, and set up Spotify
+Soloist (the piece that actually plays audio) — see:
+
+1. [docs/AUTH.md](docs/AUTH.md) — Discord token, Spotify Web API app,
+   Soloist API key + Premium pairing.
+2. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — same machine, or bot on a
+   remote server with Soloist at home over an SSH tunnel.
+
+Once `.env` is filled in, start (or restart) the bot with:
+
+```bash
+source .venv/bin/activate && python3 main.py
+```
+
+(equivalent to `python -m bot.main`, kept as an alternative if you prefer
+running it as a module).
 
 ## Commands
 

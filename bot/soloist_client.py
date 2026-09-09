@@ -58,12 +58,23 @@ class SoloistClient:
     def on_event(self, event_type: str, handler: EventHandler) -> None:
         self._listeners.setdefault(event_type, []).append(handler)
 
+    def start(self) -> None:
+        """Start the background connect/reconnect loop without waiting.
+
+        Soloist may not be reachable yet when the bot starts (not set up,
+        machine offline, SSH tunnel not up) — that shouldn't stop the bot
+        from logging into Discord. The loop keeps retrying in the
+        background; check `connected` (or /status) to see when it's up.
+        """
+        if self._run_task is None:
+            self._run_task = asyncio.create_task(self._run_forever())
+
     async def connect(self) -> None:
         """Start the background connect/reconnect loop and wait for the
-        first successful connection."""
-        if self._run_task is not None:
-            return
-        self._run_task = asyncio.create_task(self._run_forever())
+        first successful connection. Useful in tests/scripts where a
+        working Soloist connection is a precondition; bot/main.py uses
+        `start()` instead so it never blocks on Soloist being reachable."""
+        self.start()
         await self._connected.wait()
 
     async def close(self) -> None:

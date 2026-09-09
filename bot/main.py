@@ -50,7 +50,7 @@ async def _async_main(config: Config) -> None:
         for extension in INITIAL_EXTENSIONS:
             await bot.load_extension(extension)
 
-        await soloist.connect()
+        soloist.start()
         try:
             await bot.start(config.discord_token)
         finally:
