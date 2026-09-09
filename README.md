@@ -9,9 +9,14 @@ account.
 Every self-hoster provides their own Discord bot token, Spotify Web API app,
 Soloist API key, and Premium account — nothing is shared between installs.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit
-together (Spotify Web API for search, Soloist + PulseAudio + ffmpeg for
-audio into the voice channel).
+**Runs on one dedicated server only** (a small VPS, home server, or
+Raspberry Pi) — the bot, `soloist`, and PulseAudio all run together there.
+This is deliberate: Soloist's audio only ever exists as a virtual sink, so
+there's no dependency on (or conflict with) real audio hardware, and
+nothing needs to be exposed over a network. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full picture (Spotify
+Web API for search, Soloist + PulseAudio + ffmpeg for audio into the voice
+channel) and why it's one server only.
 
 ## Quick start
 
@@ -33,8 +38,8 @@ Soloist (the piece that actually plays audio) — see:
 
 1. [docs/AUTH.md](docs/AUTH.md) — Discord token, Spotify Web API app,
    Soloist API key + Premium pairing.
-2. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — same machine, or bot on a
-   remote server with Soloist at home over an SSH tunnel.
+2. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — setting up the dedicated
+   server (PulseAudio sink, running Soloist, systemd services).
 
 Once `.env` is filled in, start (or restart) the bot with:
 

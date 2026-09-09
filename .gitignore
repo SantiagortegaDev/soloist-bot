@@ -157,6 +157,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# soloist-bot: local secrets (Soloist API key)
+scripts/run_soloist.sh
+
 # Spyder project settings
 .spyderproject
 .spyproject

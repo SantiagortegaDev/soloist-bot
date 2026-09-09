@@ -20,19 +20,37 @@ null-sink**, and `ffmpeg` captures that sink's monitor live as the input to
 uses to read a file, pointed at a live source instead.
 
 ```
-Spotify Premium account
-        │  Spotify Connect pairing (one-time, via the Spotify app)
-        ▼
-   soloist daemon  ──ws (JSON, local only)──▶  control: play/pause/skip/queue/volume
-        │                                      events: track_changed/playback_changed
-        └─ audio ──▶ PulseAudio null-sink "soloist_out"
-                              │
-                              ▼ ffmpeg -f pulse -i soloist_out.monitor
-                     discord.py VoiceClient.play()
-                              │
-                              ▼
-                     Discord voice channel
+                     one dedicated server
+        ┌──────────────────────────────────────────────┐
+        │  soloist daemon  ──ws (JSON, 127.0.0.1)──▶  control: play/pause/
+        │        │                                     skip/queue/volume
+        │        │                                     events: track_changed
+        │        └─ audio ──▶ PulseAudio null-sink "soloist_out"
+        │                              │
+        │                              ▼ ffmpeg -f pulse -i soloist_out.monitor
+        │                     discord.py bot / VoiceClient.play()
+        └──────────────────────────────┬───────────────────────┘
+                                        ▼
+                              Discord voice channel
 ```
+
+Spotify Premium account pairing happens once, via Spotify Connect, from
+the Spotify app on any device — see [docs/AUTH.md](AUTH.md).
+
+## One dedicated server, on purpose
+
+`soloist`, PulseAudio, and the bot **all run together on the same machine**
+— see [docs/DEPLOYMENT.md](DEPLOYMENT.md). This is a deliberate choice, not
+just the simple option:
+
+- Soloist's audio never leaves the machine as real sound — it only exists
+  as a virtual PulseAudio sink, so there's never a conflict with (or
+  dependency on) whatever audio hardware/output device that machine has.
+  A headless VPS with no sound card at all works fine.
+- Soloist's WebSocket and PulseAudio's TCP module are **unauthenticated by
+  design** (see Security below) — keeping everything on one box means
+  nothing needs to be exposed or tunneled over a network at all.
+- One process topology to document, deploy, and debug, instead of two.
 
 ## One Soloist device per bot process
 
@@ -43,25 +61,15 @@ commands act on that same listening session, and the audio only ever goes
 to whichever voice channel the bot most recently joined. This is a
 single-"room" bot by design, matching what one Soloist/Premium account can
 physically do. Running multiple independent instances (their own bot
-token, Spotify app, Soloist device, and PulseAudio sink) is how you'd serve
-multiple simultaneous listening rooms.
-
-## Deployment topologies
-
-Both of these use *exactly the same bot code* — see [DEPLOYMENT.md](DEPLOYMENT.md):
-
-- **Same machine**: bot and `soloist` run side by side; the bot dials
-  `127.0.0.1:<SOLOIST_WS_PORT>` and reads the local Pulse socket directly.
-- **Remote bot, Soloist at home, via SSH tunnel**: `ssh -R` forwards both
-  the Soloist WS port and PulseAudio's TCP port from the home machine to
-  the remote server's `127.0.0.1`. The bot still only ever talks to
-  `127.0.0.1` — it has no idea Soloist is elsewhere.
+token, Spotify app, Soloist device, dedicated server, and PulseAudio sink)
+is how you'd serve multiple simultaneous listening rooms.
 
 ## Security
 
 Soloist's WebSocket API has **no authentication, TLS, or origin checks** by
-design (per Spotify's own docs) — it is meant to be local-only. Likewise
-PulseAudio's TCP module is only safe with `auth-anonymous=1` when bound to
-`127.0.0.1`. **Never** bind either of these to a public interface or open
-their ports in a firewall; the SSH tunnel is the only sanctioned way to
-reach them remotely.
+design (per Spotify's own docs) — it is meant to be local-only. Likewise,
+`scripts/setup_pulse_sink.sh` only ever binds PulseAudio's TCP module to
+`127.0.0.1`. Since the bot, Soloist, and PulseAudio all run on the same
+server and only ever talk to each other over `127.0.0.1`, neither port
+needs to be reachable from outside that server at all — don't open them in
+any firewall.

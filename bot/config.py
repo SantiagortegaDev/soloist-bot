@@ -26,7 +26,6 @@ class Config:
     soloist_ws_host: str
     soloist_ws_port: int
     pulse_monitor: str
-    pulse_server: str | None
 
     @property
     def soloist_ws_url(self) -> str:
@@ -64,5 +63,4 @@ def load_config(env_file: str | None = ".env") -> Config:
         soloist_ws_host=os.environ.get("SOLOIST_WS_HOST", "127.0.0.1"),
         soloist_ws_port=soloist_ws_port,
         pulse_monitor=os.environ.get("SOLOIST_PULSE_MONITOR", "soloist_out.monitor"),
-        pulse_server=os.environ.get("PULSE_SERVER") or None,
     )

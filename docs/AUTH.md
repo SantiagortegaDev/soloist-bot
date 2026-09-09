@@ -36,10 +36,10 @@ actually be heard in the voice channel.
 1. In the same [Spotify Developer Dashboard](https://developer.spotify.com/dashboard),
    find the **Spotify Soloist API key** section and generate a key. Keep it
    secret — treat it like a password (never commit it, never share it).
-2. Install `soloist` on the machine that will play audio (see
-   `spotify/soloist` for install instructions for your Linux
-   distribution/Raspberry Pi).
-3. Run `scripts/setup_pulse_sink.sh` on that machine to create the
+2. Install `soloist` on the same dedicated server that runs this bot (see
+   [DEPLOYMENT.md](DEPLOYMENT.md) and `spotify/soloist` for install
+   instructions for your Linux distribution/Raspberry Pi).
+3. Run `scripts/setup_pulse_sink.sh` on that server to create the
    PulseAudio null-sink Soloist will play into (instead of real speakers).
 4. Launch Soloist pointed at that sink and with the WebSocket API enabled
    — see `scripts/run_soloist.sh.example` for the exact command.
@@ -48,8 +48,8 @@ actually be heard in the voice channel.
    (e.g. "Discord Bot"). Soloist stores the session after this — you won't
    need to re-pair on every restart. There's no browser login or password
    prompt in this flow.
-6. Set `SOLOIST_WS_HOST` / `SOLOIST_WS_PORT` in `.env` to match what you
-   passed to `--ws` (use `127.0.0.1` unless you're doing the SSH-tunnel
-   deployment — see [DEPLOYMENT.md](DEPLOYMENT.md)).
+6. Set `SOLOIST_WS_PORT` in `.env` to match what you passed to `--ws`
+   (`SOLOIST_WS_HOST` stays `127.0.0.1` — bot and Soloist always run on
+   the same server, see [DEPLOYMENT.md](DEPLOYMENT.md)).
 
-Once all three are set in `.env`, run the bot with `python -m bot.main`.
+Once all three are set in `.env`, run the bot with `python3 main.py`.

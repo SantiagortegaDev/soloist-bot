@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 
 import aiohttp
 import discord
@@ -28,12 +27,6 @@ def _build_bot() -> commands.Bot:
 
 
 async def _async_main(config: Config) -> None:
-    if config.pulse_server:
-        # A single Soloist device serves the whole process (see
-        # docs/ARCHITECTURE.md), so setting this once here is enough to
-        # make ffmpeg's pulse input transparently follow the SSH tunnel.
-        os.environ["PULSE_SERVER"] = config.pulse_server
-
     bot = _build_bot()
 
     async with aiohttp.ClientSession() as session:
